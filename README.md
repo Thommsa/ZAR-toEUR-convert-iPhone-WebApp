@@ -1,3 +1,5 @@
+<!-- Hello, World: Mr. Thomaski made this first app on July 28th 2026 -->
+
 # ZAR ⇄ EUR Converter
 
 A tiny installable web app (PWA) that converts South African Rand to Euro
