@@ -18,12 +18,10 @@ let isFallback = false;    // true while showing the baked-in rate, not a real f
 const zarInput    = document.getElementById("zarInput");
 const eurInput    = document.getElementById("eurInput");
 const clearBtn    = document.getElementById("clearBtn");
-const refreshBtn  = document.getElementById("refreshBtn");
 const statusDot   = document.getElementById("statusDot");
 const statusText  = document.getElementById("statusText");
 const rateValue   = document.getElementById("rateValue");
 const metaText    = document.getElementById("metaText");
-const errorBanner = document.getElementById("errorBanner");
 
 // ---- Helpers ----
 function saveCache(rate, timestamp) {
@@ -57,14 +55,6 @@ function setStatus(mode, text) {
   statusText.textContent = text;
 }
 
-function showError(msg) {
-  errorBanner.textContent = msg;
-  errorBanner.style.display = "block";
-}
-function clearError() {
-  errorBanner.style.display = "none";
-}
-
 // Converts from whichever field the person is actively typing in,
 // so either box can be the "source" at any time.
 function convertFromZar() {
@@ -94,7 +84,7 @@ function reconvert() {
 function renderRateInfo() {
   if (currentRate == null) {
     rateValue.textContent = "—";
-    metaText.textContent = "No rate available yet. Connect to the internet and tap Refresh.";
+    metaText.textContent = "No rate available yet. Connect to the internet.";
     return;
   }
   rateValue.textContent = `1 ZAR = ${currentRate.toFixed(5)} EUR`;
@@ -105,11 +95,7 @@ function renderRateInfo() {
   }
 }
 
-async function fetchRate({ silent } = { silent: false }) {
-  if (!silent) {
-    refreshBtn.disabled = true;
-    refreshBtn.textContent = "Refreshing…";
-  }
+async function fetchRate() {
   try {
     const res = await fetch(API_URL, { cache: "no-store" });
     if (!res.ok) throw new Error("Bad response");
@@ -123,7 +109,6 @@ async function fetchRate({ silent } = { silent: false }) {
     saveCache(currentRate, rateTimestamp);
 
     setStatus("live", "Live rate");
-    clearError();
     renderRateInfo();
     reconvert();
   } catch (err) {
@@ -138,11 +123,7 @@ async function fetchRate({ silent } = { silent: false }) {
       reconvert();
     } else {
       setStatus("cached", isFallback ? "No connection — using built-in fallback rate" : "Offline — using cached rate");
-      if (!silent) showError("Couldn't refresh. Showing the last known rate instead.");
     }
-  } finally {
-    refreshBtn.disabled = false;
-    refreshBtn.textContent = "Refresh rate";
   }
 }
 
@@ -160,20 +141,18 @@ function init() {
   // the background fetch below will either go live or drop to the
   // baked-in fallback rate, both of which update the UI themselves.
 
-  // Try to get a fresh rate in the background (won't disturb the UI
-  // beyond updating the status dot / rate pill when it resolves).
-  fetchRate({ silent: true });
+  // Try to get a fresh rate in the background.
+  fetchRate();
 
   zarInput.addEventListener("input", convertFromZar);
   eurInput.addEventListener("input", convertFromEur);
-  refreshBtn.addEventListener("click", () => fetchRate({ silent: false }));
   clearBtn.addEventListener("click", () => {
     zarInput.value = "";
     eurInput.value = "";
     zarInput.focus();
   });
 
-  window.addEventListener("online", () => fetchRate({ silent: true }));
+  window.addEventListener("online", () => fetchRate());
   window.addEventListener("offline", () => {
     if (currentRate != null) {
       setStatus("cached", isFallback ? "No connection — using built-in fallback rate" : "Offline — using cached rate");
