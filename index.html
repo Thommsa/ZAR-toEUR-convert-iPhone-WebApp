@@ -154,34 +154,6 @@
     text-align:center;
     line-height:1.5;
   }
-  .refresh-btn{
-    margin-top: 14px;
-    width:100%;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--teal);
-    font-family: var(--sans);
-    font-size: 13.5px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    cursor:pointer;
-  }
-  .refresh-btn:active{ background: rgba(79,168,160,0.08); }
-  .refresh-btn:disabled{ opacity: 0.5; }
-
-  .error-banner{
-    display:none;
-    margin-top: 12px;
-    padding: 10px 14px;
-    border-radius: 10px;
-    background: rgba(212,162,76,0.10);
-    border: 1px solid rgba(212,162,76,0.3);
-    color: var(--gold);
-    font-size: 12.5px;
-    text-align:center;
-  }
 </style>
 </head>
 <body>
@@ -217,9 +189,6 @@
   </div>
 
   <p class="meta" id="metaText">Loading last known rate…</p>
-
-  <button class="refresh-btn" id="refreshBtn">Refresh rate</button>
-  <div class="error-banner" id="errorBanner"></div>
 </div>
 
 <script src="app.js"></script>
