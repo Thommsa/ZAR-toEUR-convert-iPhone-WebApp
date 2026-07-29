@@ -49,8 +49,11 @@ function formatTimestamp(iso) {
 }
 
 function setStatus(mode, text) {
-  // mode: 'live' | 'cached' | 'fallback' | 'none'
-  const cls = mode === "live" ? " live" : (mode === "cached" || mode === "fallback") ? " cached" : "";
+  // mode: 'live' | 'cached' | 'offline' | 'none'
+  let cls = "";
+  if (mode === "live") cls = " live";
+  else if (mode === "cached") cls = " cached";
+  else if (mode === "offline") cls = " offline";
   statusDot.className = "status-dot" + cls;
   statusText.textContent = text;
 }
@@ -84,12 +87,12 @@ function reconvert() {
 function renderRateInfo() {
   if (currentRate == null) {
     rateValue.textContent = "—";
-    metaText.textContent = "No rate available yet. Connect to the internet.";
+    metaText.textContent = "Waiting for a rate…";
     return;
   }
   rateValue.textContent = `1 ZAR = ${currentRate.toFixed(5)} EUR`;
   if (isFallback) {
-    metaText.textContent = `Built-in fallback rate (as of ${formatTimestamp(FALLBACK_DATE)}) — will update once online`;
+    metaText.textContent = `Built-in rate · updates when online`;
   } else {
     metaText.textContent = `Last updated ${formatTimestamp(rateTimestamp)}`;
   }
@@ -108,7 +111,7 @@ async function fetchRate() {
     isFallback = false;
     saveCache(currentRate, rateTimestamp);
 
-    setStatus("live", "Live rate");
+    setStatus("live", "Live");
     renderRateInfo();
     reconvert();
   } catch (err) {
@@ -118,11 +121,11 @@ async function fetchRate() {
       currentRate = FALLBACK_RATE;
       rateTimestamp = FALLBACK_DATE;
       isFallback = true;
-      setStatus("fallback", "No connection — using built-in fallback rate");
+      setStatus("offline", "Offline");
       renderRateInfo();
       reconvert();
     } else {
-      setStatus("cached", isFallback ? "No connection — using built-in fallback rate" : "Offline — using cached rate");
+      setStatus("cached", isFallback ? "Offline" : "Cached");
     }
   }
 }
@@ -134,10 +137,10 @@ function init() {
     currentRate = cached.rate;
     rateTimestamp = cached.timestamp;
     isFallback = false;
-    setStatus("cached", "Using cached rate");
+    setStatus("cached", "Cached");
     renderRateInfo();
   }
-  // If there's no cache yet, leave the initial "Checking rate…" state as-is;
+  // If there's no cache yet, leave the initial "Checking…" state as-is;
   // the background fetch below will either go live or drop to the
   // baked-in fallback rate, both of which update the UI themselves.
 
@@ -155,7 +158,7 @@ function init() {
   window.addEventListener("online", () => fetchRate());
   window.addEventListener("offline", () => {
     if (currentRate != null) {
-      setStatus("cached", isFallback ? "No connection — using built-in fallback rate" : "Offline — using cached rate");
+      setStatus("offline", "Offline");
     }
   });
 }
