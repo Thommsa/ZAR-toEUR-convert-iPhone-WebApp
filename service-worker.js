@@ -1,4 +1,4 @@
-const CACHE_NAME = "zar-eur-shell-v8";
+const CACHE_NAME = "zar-eur-shell-v9";
 const SHELL_FILES = [
   "./",
   "./index.html",

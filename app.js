@@ -14,13 +14,11 @@ const FALLBACK_DATE = "2026-07-27T00:00:00Z";
 let currentRate = null;    // always stored as ZAR->EUR rate
 let rateTimestamp = null;  // ISO string, when the rate was fetched
 let isFallback = false;    // true while showing the baked-in rate, not a real fetch/cache
-let currentMode = "none";  // live | cached | offline | none
 
 // ---- Elements ----
 const zarInput    = document.getElementById("zarInput");
 const eurInput    = document.getElementById("eurInput");
 const clearBtn    = document.getElementById("clearBtn");
-const statusDot   = document.getElementById("statusDot");
 const rateValue   = document.getElementById("rateValue");
 const metaText    = document.getElementById("metaText");
 
@@ -47,17 +45,6 @@ function formatTimestamp(iso) {
   const timeStr = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   if (sameDay) return `today at ${timeStr}`;
   return `${d.toLocaleDateString([], { day: "numeric", month: "short" })} at ${timeStr}`;
-}
-
-function setStatus(mode) {
-  // mode: 'live' | 'cached' | 'offline' | 'none'
-  currentMode = mode;
-  let cls = "";
-  if (mode === "live") cls = " live";
-  else if (mode === "cached") cls = " cached";
-  else if (mode === "offline") cls = " offline";
-  statusDot.className = "status-dot" + cls;
-  renderRateInfo();
 }
 
 // Converts from whichever field the person is actively typing in,
@@ -114,7 +101,7 @@ async function fetchRate() {
     isFallback = false;
     saveCache(currentRate, rateTimestamp);
 
-    setStatus("live");
+    renderRateInfo();
     reconvert();
   } catch (err) {
     // Fall back silently to whatever is cached; only reach for the
@@ -123,10 +110,10 @@ async function fetchRate() {
       currentRate = FALLBACK_RATE;
       rateTimestamp = FALLBACK_DATE;
       isFallback = true;
-      setStatus("offline");
+      renderRateInfo();
       reconvert();
     } else {
-      setStatus(isFallback ? "offline" : "cached");
+      renderRateInfo();
     }
   }
 }
@@ -138,7 +125,7 @@ function init() {
     currentRate = cached.rate;
     rateTimestamp = cached.timestamp;
     isFallback = false;
-    setStatus("cached");
+    renderRateInfo();
   }
   // If there's no cache yet, leave the initial "Checking…" state as-is;
   // the background fetch below will either go live or drop to the
@@ -156,11 +143,6 @@ function init() {
   });
 
   window.addEventListener("online", () => fetchRate());
-  window.addEventListener("offline", () => {
-    if (currentRate != null) {
-      setStatus("offline");
-    }
-  });
 }
 
 init();

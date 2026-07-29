@@ -149,20 +149,7 @@
     color: var(--text-mute);
     text-align:center;
     line-height:1.5;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap: 6px;
   }
-  .status-dot{
-    width:7px; height:7px; border-radius:50%;
-    background: var(--text-mute);
-    flex-shrink:0;
-    transition: background 0.2s ease, box-shadow 0.2s ease;
-  }
-  .status-dot.live{ background: var(--teal); box-shadow: 0 0 0 3px rgba(79,168,160,0.18); }
-  .status-dot.cached{ background: var(--gold); box-shadow: 0 0 0 3px rgba(212,162,76,0.18); }
-  .status-dot.offline{ background: #c47a6a; box-shadow: 0 0 0 3px rgba(196,122,106,0.18); }
 </style>
 </head>
 <body>
@@ -195,10 +182,7 @@
     <span class="rate-value" id="rateValue">—</span>
   </div>
 
-  <p class="meta" id="metaLine">
-    <span class="status-dot" id="statusDot"></span>
-    <span id="metaText">Checking…</span>
-  </p>
+  <p class="meta" id="metaText">Checking…</p>
 </div>
 
 <script src="app.js"></script>
