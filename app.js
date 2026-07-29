@@ -13,13 +13,13 @@ const FALLBACK_DATE = "2026-07-27T00:00:00Z";
 let currentRate = null;    // always stored as ZAR->EUR rate
 let rateTimestamp = null;  // ISO string, when the rate was fetched
 let isFallback = false;    // true while showing the baked-in rate, not a real fetch/cache
+let currentMode = "none";  // live | cached | offline | none
 
 // ---- Elements ----
 const zarInput    = document.getElementById("zarInput");
 const eurInput    = document.getElementById("eurInput");
 const clearBtn    = document.getElementById("clearBtn");
 const statusDot   = document.getElementById("statusDot");
-const statusText  = document.getElementById("statusText");
 const rateValue   = document.getElementById("rateValue");
 const metaText    = document.getElementById("metaText");
 
@@ -48,14 +48,15 @@ function formatTimestamp(iso) {
   return `${d.toLocaleDateString([], { day: "numeric", month: "short" })} at ${timeStr}`;
 }
 
-function setStatus(mode, text) {
+function setStatus(mode) {
   // mode: 'live' | 'cached' | 'offline' | 'none'
+  currentMode = mode;
   let cls = "";
   if (mode === "live") cls = " live";
   else if (mode === "cached") cls = " cached";
   else if (mode === "offline") cls = " offline";
   statusDot.className = "status-dot" + cls;
-  statusText.textContent = text;
+  renderRateInfo();
 }
 
 // Converts from whichever field the person is actively typing in,
@@ -87,14 +88,20 @@ function reconvert() {
 function renderRateInfo() {
   if (currentRate == null) {
     rateValue.textContent = "—";
-    metaText.textContent = "Waiting for a rate…";
+    metaText.textContent = "Checking…";
     return;
   }
   rateValue.textContent = `1 ZAR = ${currentRate.toFixed(5)} EUR`;
-  if (isFallback) {
-    metaText.textContent = `Built-in rate · updates when online`;
+
+  if (currentMode === "live") {
+    metaText.textContent = `Live · ${formatTimestamp(rateTimestamp)}`;
+  } else if (currentMode === "offline" || isFallback) {
+    metaText.textContent = isFallback
+      ? "Offline · built-in rate"
+      : `Offline · ${formatTimestamp(rateTimestamp)}`;
   } else {
-    metaText.textContent = `Last updated ${formatTimestamp(rateTimestamp)}`;
+    // cached
+    metaText.textContent = `Cached · ${formatTimestamp(rateTimestamp)}`;
   }
 }
 
@@ -111,8 +118,7 @@ async function fetchRate() {
     isFallback = false;
     saveCache(currentRate, rateTimestamp);
 
-    setStatus("live", "Live");
-    renderRateInfo();
+    setStatus("live");
     reconvert();
   } catch (err) {
     // Fall back silently to whatever is cached; only reach for the
@@ -121,11 +127,10 @@ async function fetchRate() {
       currentRate = FALLBACK_RATE;
       rateTimestamp = FALLBACK_DATE;
       isFallback = true;
-      setStatus("offline", "Offline");
-      renderRateInfo();
+      setStatus("offline");
       reconvert();
     } else {
-      setStatus("cached", isFallback ? "Offline" : "Cached");
+      setStatus(isFallback ? "offline" : "cached");
     }
   }
 }
@@ -137,8 +142,7 @@ function init() {
     currentRate = cached.rate;
     rateTimestamp = cached.timestamp;
     isFallback = false;
-    setStatus("cached", "Cached");
-    renderRateInfo();
+    setStatus("cached");
   }
   // If there's no cache yet, leave the initial "Checking…" state as-is;
   // the background fetch below will either go live or drop to the
@@ -158,7 +162,7 @@ function init() {
   window.addEventListener("online", () => fetchRate());
   window.addEventListener("offline", () => {
     if (currentRate != null) {
-      setStatus("offline", "Offline");
+      setStatus("offline");
     }
   });
 }
