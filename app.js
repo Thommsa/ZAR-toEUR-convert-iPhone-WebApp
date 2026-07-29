@@ -19,6 +19,7 @@ let currentMode = "none";  // live | cached | offline | none
 const zarInput    = document.getElementById("zarInput");
 const eurInput    = document.getElementById("eurInput");
 const clearBtn    = document.getElementById("clearBtn");
+const refreshBtn  = document.getElementById("refreshBtn");
 const statusDot   = document.getElementById("statusDot");
 const rateValue   = document.getElementById("rateValue");
 const metaText    = document.getElementById("metaText");
@@ -105,7 +106,10 @@ function renderRateInfo() {
   }
 }
 
-async function fetchRate() {
+async function fetchRate(showSpinner = false) {
+  if (showSpinner && refreshBtn) {
+    refreshBtn.classList.add("spinning");
+  }
   try {
     const res = await fetch(API_URL, { cache: "no-store" });
     if (!res.ok) throw new Error("Bad response");
@@ -131,6 +135,10 @@ async function fetchRate() {
       reconvert();
     } else {
       setStatus(isFallback ? "offline" : "cached");
+    }
+  } finally {
+    if (refreshBtn) {
+      refreshBtn.classList.remove("spinning");
     }
   }
 }
@@ -158,6 +166,9 @@ function init() {
     eurInput.value = "";
     zarInput.focus();
   });
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", () => fetchRate(true));
+  }
 
   window.addEventListener("online", () => fetchRate());
   window.addEventListener("offline", () => {
