@@ -51,25 +51,6 @@
     padding: 28px 24px 22px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.35);
   }
-  .eyebrow{
-    font-size: 12px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-mute);
-    margin: 0 0 18px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .status-dot{
-    width:7px; height:7px; border-radius:50%;
-    background: var(--text-mute);
-    flex-shrink:0;
-    transition: background 0.2s ease, box-shadow 0.2s ease;
-  }
-  .status-dot.live{ background: var(--teal); box-shadow: 0 0 0 3px rgba(79,168,160,0.18); }
-  .status-dot.cached{ background: var(--gold); box-shadow: 0 0 0 3px rgba(212,162,76,0.18); }
-  .status-dot.offline{ background: #c47a6a; box-shadow: 0 0 0 3px rgba(196,122,106,0.18); }
 
   .field{
     background: var(--panel-2);
@@ -154,14 +135,25 @@
     color: var(--text-mute);
     text-align:center;
     line-height:1.5;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 6px;
   }
+  .status-dot{
+    width:7px; height:7px; border-radius:50%;
+    background: var(--text-mute);
+    flex-shrink:0;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+  }
+  .status-dot.live{ background: var(--teal); box-shadow: 0 0 0 3px rgba(79,168,160,0.18); }
+  .status-dot.cached{ background: var(--gold); box-shadow: 0 0 0 3px rgba(212,162,76,0.18); }
+  .status-dot.offline{ background: #c47a6a; box-shadow: 0 0 0 3px rgba(196,122,106,0.18); }
 </style>
 </head>
 <body>
 
 <div class="card">
-  <p class="eyebrow"><span class="status-dot" id="statusDot"></span><span id="statusText">Checking…</span></p>
-
   <div class="field">
     <label for="zarInput">South African Rand</label>
     <div class="field-row">
@@ -189,7 +181,10 @@
     <span class="rate-value" id="rateValue">—</span>
   </div>
 
-  <p class="meta" id="metaText">Loading last known rate…</p>
+  <p class="meta" id="metaLine">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="metaText">Checking…</span>
+  </p>
 </div>
 
 <script src="app.js"></script>
