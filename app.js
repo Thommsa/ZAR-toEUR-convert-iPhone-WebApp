@@ -1,6 +1,7 @@
 // ---- Config ----
 const API_URL = "https://api.frankfurter.app/latest?from=ZAR&to=EUR";
 const STORAGE_KEY = "zar_eur_rate_cache_v1";
+const SOURCE_LABEL = "Frankfurter (ECB)";
 
 // Baked-in fallback so the app is never blank on a brand-new install with
 // no internet and no cache yet. Update this occasionally by hand — it's
@@ -19,7 +20,6 @@ let currentMode = "none";  // live | cached | offline | none
 const zarInput    = document.getElementById("zarInput");
 const eurInput    = document.getElementById("eurInput");
 const clearBtn    = document.getElementById("clearBtn");
-const refreshBtn  = document.getElementById("refreshBtn");
 const statusDot   = document.getElementById("statusDot");
 const rateValue   = document.getElementById("rateValue");
 const metaText    = document.getElementById("metaText");
@@ -89,27 +89,19 @@ function reconvert() {
 function renderRateInfo() {
   if (currentRate == null) {
     rateValue.textContent = "—";
-    metaText.textContent = "Checking…";
+    metaText.textContent = "Checking rate…";
     return;
   }
   rateValue.textContent = `1 ZAR = ${currentRate.toFixed(5)} EUR`;
 
-  if (currentMode === "live") {
-    metaText.textContent = `Live · ${formatTimestamp(rateTimestamp)}`;
-  } else if (currentMode === "offline" || isFallback) {
-    metaText.textContent = isFallback
-      ? "Offline · built-in rate"
-      : `Offline · ${formatTimestamp(rateTimestamp)}`;
+  if (isFallback) {
+    metaText.textContent = `Built-in rate · as of ${formatTimestamp(FALLBACK_DATE)} · ${SOURCE_LABEL}`;
   } else {
-    // cached
-    metaText.textContent = `Cached · ${formatTimestamp(rateTimestamp)}`;
+    metaText.textContent = `Updated ${formatTimestamp(rateTimestamp)} · ${SOURCE_LABEL}`;
   }
 }
 
-async function fetchRate(showSpinner = false) {
-  if (showSpinner && refreshBtn) {
-    refreshBtn.classList.add("spinning");
-  }
+async function fetchRate() {
   try {
     const res = await fetch(API_URL, { cache: "no-store" });
     if (!res.ok) throw new Error("Bad response");
@@ -135,10 +127,6 @@ async function fetchRate(showSpinner = false) {
       reconvert();
     } else {
       setStatus(isFallback ? "offline" : "cached");
-    }
-  } finally {
-    if (refreshBtn) {
-      refreshBtn.classList.remove("spinning");
     }
   }
 }
@@ -166,9 +154,6 @@ function init() {
     eurInput.value = "";
     zarInput.focus();
   });
-  if (refreshBtn) {
-    refreshBtn.addEventListener("click", () => fetchRate(true));
-  }
 
   window.addEventListener("online", () => fetchRate());
   window.addEventListener("offline", () => {
