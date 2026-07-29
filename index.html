@@ -87,9 +87,9 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    margin: 4px 0;
+    margin: 12px 0;
     position:relative;
-    height: 34px;
+    height: 52px;
   }
   .swap-row::before{
     content:"";
@@ -101,17 +101,31 @@
   .swap-btn{
     position:relative;
     z-index:1;
-    width:34px; height:34px;
+    width:48px;
+    height:48px;
     border-radius:50%;
-    border: 1px solid var(--border);
-    background: var(--panel);
+    border: 1.5px solid rgba(212,162,76,0.4);
+    background: linear-gradient(160deg, #2c4266 0%, #1a2c48 100%);
     color: var(--gold);
-    font-size: 16px;
-    display:flex; align-items:center; justify-content:center;
+    font-size: 22px;
+    font-weight: 500;
+    display:flex;
+    align-items:center;
+    justify-content:center;
     cursor:pointer;
-    transition: transform 0.15s ease, border-color 0.15s ease;
+    box-shadow:
+      0 5px 14px rgba(0,0,0,0.5),
+      0 2px 4px rgba(0,0,0,0.35),
+      inset 0 1px 1px rgba(255,255,255,0.15),
+      inset 0 -3px 6px rgba(0,0,0,0.3);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
-  .swap-btn:active{ transform: rotate(180deg) scale(0.92); }
+  .swap-btn:active{
+    transform: scale(0.9) rotate(180deg);
+    box-shadow:
+      0 1px 4px rgba(0,0,0,0.45),
+      inset 0 3px 8px rgba(0,0,0,0.45);
+  }
 
   .rate-pill{
     margin-top: 18px;
