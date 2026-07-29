@@ -65,10 +65,11 @@
     width:7px; height:7px; border-radius:50%;
     background: var(--text-mute);
     flex-shrink:0;
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
   }
   .status-dot.live{ background: var(--teal); box-shadow: 0 0 0 3px rgba(79,168,160,0.18); }
   .status-dot.cached{ background: var(--gold); box-shadow: 0 0 0 3px rgba(212,162,76,0.18); }
+  .status-dot.offline{ background: #c47a6a; box-shadow: 0 0 0 3px rgba(196,122,106,0.18); }
 
   .field{
     background: var(--panel-2);
@@ -159,7 +160,7 @@
 <body>
 
 <div class="card">
-  <p class="eyebrow"><span class="status-dot" id="statusDot"></span><span id="statusText">Checking rate…</span></p>
+  <p class="eyebrow"><span class="status-dot" id="statusDot"></span><span id="statusText">Checking…</span></p>
 
   <div class="field">
     <label for="zarInput">South African Rand</label>
